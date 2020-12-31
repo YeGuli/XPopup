@@ -86,6 +86,10 @@ Gif录制的有些卡顿，真机预览效果更佳。扫描二维码下载Demo�
 ```groovy
 implementation 'com.lxj:xpopup:最新版本'
 ```
+其中编译版本必须 >= 29：
+```
+compileSdkVersion 29
+```
 
 必须添加的依赖库，版本不用和我一致：
 ```groovy
@@ -173,7 +177,10 @@ implementation 'androidx.recyclerview:recyclerview:1.1.0'
 - 慧孕育，啵咿呀(中联信息产业公司)
 - 领财猫(湖南中纵联联信息科技有限公司)一款领取周边红包的APP，https://android.myapp.com/myapp/detail.htm?apkName=com.zwcs.cat
 - NewsClapper（下载地址：https://play.google.com/store/apps/details?id=com.newsclapper.video）
-- 情侣签App（下载地址：http://app.mi.com/details?id=com.ymstudio.loversign&ref=search）
+- 情侣签App-千万级用户情侣恋爱记录产品 （下载地址：http://app.mi.com/details?id=com.ymstudio.loversign&ref=search）
+- 我爱赚钱(下载地址: https://sj.qq.com/myapp/detail.htm?apkName=me.tx.taskhunter&info=532BB35B65D9FFA7F497DEFA6E27F663)
+- 海信智学平台
+- 饭友视频聊天交友(下载地址：https://android.myapp.com/myapp/detail.htm?apkName=com.quanmai.findu&info=519DFF1F69A45EAF33B4D2C51A7AC2D3)
 
 
 ## 打个赏
@@ -207,9 +214,7 @@ ECS-4核8G40G硬盘5M带宽 ： 1046元/年
 
 ## 联系方式
 
-XPopup交流群：**783659607**
-
-Gmail: lxj16167479@gmail.com
+Android开发交流群：**783659607**
 
 QQ Email: 16167479@qq.com
 

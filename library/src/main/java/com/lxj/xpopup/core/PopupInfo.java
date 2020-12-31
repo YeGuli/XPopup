@@ -29,6 +29,8 @@ public class PopupInfo {
     public PointF touchPoint = null; // 触摸的点
     public int maxWidth; // 最大宽度
     public int maxHeight; // 最大高度
+    public int popupWidth, popupHeight; // 指定弹窗的宽高，受max的宽高限制
+    public float borderRadius = 15; // 圆角
     public Boolean autoOpenSoftInput = false;//是否自动打开输入法
     public XPopupCallback xPopupCallback;
 
@@ -38,7 +40,7 @@ public class PopupInfo {
     public Boolean hasStatusBarShadow = false; //是否显示状态栏阴影
     public Boolean hasStatusBar = true; //是否显示状态栏
     public Boolean hasNavigationBar = true; //是否显示导航栏
-    public int navigationBarColor = Color.TRANSPARENT; //是否显示导航栏
+    public int navigationBarColor = 0; //是否显示导航栏
     public int offsetX, offsetY;//x，y方向的偏移量
     public Boolean enableDrag = true;//是否启用拖拽
     public boolean isCenterHorizontal = false;//是否水平居中
@@ -49,6 +51,7 @@ public class PopupInfo {
     public boolean enableShowWhenAppBackground = false; //是否允许应用在后台的时候也能弹出弹窗
     public boolean isThreeDrag = false; //是否开启三阶拖拽
     public boolean isDestroyOnDismiss = false; //是否关闭后进行资源释放
+    public boolean positionByWindowCenter = false; //是否已屏幕中心进行定位，默认根据Material范式进行定位
     public View getAtView() {
         return atView;
     }

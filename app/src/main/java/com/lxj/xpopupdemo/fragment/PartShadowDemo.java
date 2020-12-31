@@ -1,14 +1,10 @@
 package com.lxj.xpopupdemo.fragment;
 
-import android.os.Handler;
-import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.blankj.utilcode.util.ToastUtils;
 import com.lxj.easyadapter.EasyAdapter;
 import com.lxj.easyadapter.MultiItemTypeAdapter;
 import com.lxj.easyadapter.ViewHolder;
@@ -17,10 +13,8 @@ import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.enums.PopupPosition;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.lxj.xpopup.interfaces.SimpleCallback;
-import com.lxj.xpopup.interfaces.XPopupCallback;
 import com.lxj.xpopup.widget.VerticalRecyclerView;
 import com.lxj.xpopupdemo.R;
-import com.lxj.xpopupdemo.XPopupApp;
 import com.lxj.xpopupdemo.custom.CustomDrawerPopupView;
 import com.lxj.xpopupdemo.custom.CustomPartShadowPopupView;
 import com.lxj.xpopupdemo.custom.CustomPartShadowPopupView2;
@@ -43,6 +37,7 @@ public class PartShadowDemo extends BaseFragment implements View.OnClickListener
         return R.layout.fragment_part_shadow_demo;
     }
 
+    CustomPartShadowPopupView2 customPartShadowPopupView2;
     @Override
     public void init(View view) {
         ll_container = view.findViewById(R.id.ll_container);
@@ -71,12 +66,19 @@ public class PartShadowDemo extends BaseFragment implements View.OnClickListener
                 holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
-                        builder.asAttachList(new String[]{"置顶", "编辑", "删除"}, null, new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                toast(text);
-                            }
-                        }).show();
+                        if(customPartShadowPopupView2==null){
+                            customPartShadowPopupView2 = (CustomPartShadowPopupView2) new XPopup.Builder(getContext())
+                                    .atView(v).asCustom(new CustomPartShadowPopupView2(getContext()));
+                        }else {
+//                            customPartShadowPopupView2.updatePosition();
+                        }
+                        customPartShadowPopupView2.show();
+//                        builder.asAttachList(new String[]{"置顶", "编辑", "删除"}, null, new OnSelectListener() {
+//                            @Override
+//                            public void onSelect(int position, String text) {
+//                                toast(text);
+//                            }
+//                        }).show();
                         return true;
                     }
                 });
@@ -92,14 +94,14 @@ public class PartShadowDemo extends BaseFragment implements View.OnClickListener
     }
 
     private void showPartShadow(final View v){
-        if(popupView==null){
+//        if(popupView==null){
             popupView = (CustomPartShadowPopupView) new XPopup.Builder(getContext())
                     .atView(v)
-//                    .isClickThrough(true)
+                    .isClickThrough(true)
 //                    .dismissOnTouchOutside(false)
 //                    .isCenterHorizontal(true)
                     .autoOpenSoftInput(true)
-//                    .offsetY(100)
+//                    .offsetY(-150)
 //                    .offsetX(100)
 //                .dismissOnTouchOutside(false)
                     .setPopupCallback(new SimpleCallback() {
@@ -112,7 +114,7 @@ public class PartShadowDemo extends BaseFragment implements View.OnClickListener
                         }
                     })
                     .asCustom(new CustomPartShadowPopupView(getContext()));
-        }
+//        }
 
         popupView.show();
     }

@@ -66,8 +66,8 @@ public class ImageViewerPopupView extends BasePopupView implements OnDragChangeL
     protected Rect rect = null;
     protected ImageView srcView; //动画起始的View，如果为null，移动和过渡动画效果会没有，只有弹窗的缩放功能
     protected PhotoView snapshotView;
-    protected boolean isShowPlaceholder = false; //是否显示占位白色，当图片切换为大图时，原来的地方会有一个白色块
-    protected int placeholderColor = -1; //占位View的颜色
+    protected boolean isShowPlaceholder = true; //是否显示占位白色，当图片切换为大图时，原来的地方会有一个白色块
+    protected int placeholderColor = Color.parseColor("#f1f1f1"); //占位View的颜色
     protected int placeholderStrokeColor = -1; // 占位View的边框色
     protected int placeholderRadius = -1; // 占位View的圆角
     protected boolean isShowSaveBtn = true; //是否显示保存按钮
@@ -107,17 +107,7 @@ public class ImageViewerPopupView extends BasePopupView implements OnDragChangeL
         pager.setVisibility(INVISIBLE);
         addOrUpdateSnapshot();
         if (isInfinite) pager.setOffscreenPageLimit(urls.size() / 2);
-        pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int i) {
-                position = i;
-                showPagerIndicator();
-                //更新srcView
-                if (srcViewUpdateListener != null) {
-                    srcViewUpdateListener.onSrcViewUpdate(ImageViewerPopupView.this, i);
-                }
-            }
-        });
+        pager.addOnPageChangeListener(onPageChangeListener);
         if (!isShowIndicator) tv_pager_indicator.setVisibility(GONE);
         if (!isShowSaveBtn) {
             tv_save.setVisibility(GONE);
@@ -125,6 +115,18 @@ public class ImageViewerPopupView extends BasePopupView implements OnDragChangeL
             tv_save.setOnClickListener(this);
         }
     }
+
+    ViewPager.SimpleOnPageChangeListener onPageChangeListener = new ViewPager.SimpleOnPageChangeListener() {
+        @Override
+        public void onPageSelected(int i) {
+            position = i;
+            showPagerIndicator();
+            //更新srcView
+            if (srcViewUpdateListener != null) {
+                srcViewUpdateListener.onSrcViewUpdate(ImageViewerPopupView.this, i);
+            }
+        }
+    };
 
     private void setupPlaceholder() {
         placeholderView.setVisibility(isShowPlaceholder ? VISIBLE : INVISIBLE);
@@ -164,7 +166,8 @@ public class ImageViewerPopupView extends BasePopupView implements OnDragChangeL
             XPopupUtils.setWidthHeight(snapshotView, rect.width(), rect.height());
         }
         setupPlaceholder();
-        snapshotView.setImageDrawable(srcView.getDrawable());
+//        snapshotView.setImageDrawable(srcView.getDrawable());
+        if(imageLoader!=null) imageLoader.loadImage(position, urls.get(position), snapshotView);
     }
 
     @Override
@@ -400,7 +403,12 @@ public class ImageViewerPopupView extends BasePopupView implements OnDragChangeL
         if (srcView != null) {
             int[] locations = new int[2];
             this.srcView.getLocationInWindow(locations);
-            rect = new Rect(locations[0], locations[1], locations[0] + srcView.getWidth(), locations[1] + srcView.getHeight());
+            if(XPopupUtils.isLayoutRtl(getContext())){
+                int left = -(XPopupUtils.getWindowWidth(getContext()) - locations[0] - srcView.getWidth());
+                rect = new Rect(left, locations[1], left + srcView.getWidth(), locations[1] + srcView.getHeight());
+            }else {
+                rect = new Rect(locations[0], locations[1], locations[0] + srcView.getWidth(), locations[1] + srcView.getHeight());
+            }
         }
         return this;
     }
@@ -435,6 +443,13 @@ public class ImageViewerPopupView extends BasePopupView implements OnDragChangeL
         if (v == tv_save) save();
     }
 
+    @Override
+    public void destroy() {
+        super.destroy();
+        pager.removeOnPageChangeListener(onPageChangeListener);
+        imageLoader = null;
+    }
+
     /**
      * 保存图片到相册，会自动检查是否有保存权限
      */
@@ -444,10 +459,8 @@ public class ImageViewerPopupView extends BasePopupView implements OnDragChangeL
                 .callback(new XPermission.SimpleCallback() {
                     @Override
                     public void onGranted() {
-                        //save bitmap to album.
                         XPopupUtils.saveBmpToAlbum(getContext(), imageLoader, urls.get(isInfinite ? position % urls.size() : position));
                     }
-
                     @Override
                     public void onDenied() {
                         Toast.makeText(getContext(), "没有保存权限，保存功能无法使用！", Toast.LENGTH_SHORT).show();

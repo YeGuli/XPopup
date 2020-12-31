@@ -7,9 +7,7 @@ import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
-
 import androidx.annotation.RequiresApi;
-
 import com.lxj.xpopup.animator.PopupAnimator;
 import com.lxj.xpopup.core.AttachPopupView;
 import com.lxj.xpopup.core.BasePopupView;
@@ -35,13 +33,11 @@ import com.lxj.xpopup.interfaces.OnSrcViewUpdateListener;
 import com.lxj.xpopup.interfaces.XPopupCallback;
 import com.lxj.xpopup.interfaces.XPopupImageLoader;
 import com.lxj.xpopup.util.XPermission;
-
 import java.util.List;
 
 
 public class XPopup {
-    private XPopup() {
-    }
+    private XPopup() { }
 
     /**
      * 全局弹窗的设置
@@ -49,12 +45,10 @@ public class XPopup {
     private static int primaryColor = Color.parseColor("#121212");
     private static int animationDuration = 350;
     public static int statusBarShadowColor = Color.parseColor("#55000000");
-    private static int shadowBgColor = Color.parseColor("#9F000000");
-
+    private static int shadowBgColor = Color.parseColor("#7F000000");
     public static void setShadowBgColor(int color) {
         shadowBgColor = color;
     }
-
     public static int getShadowBgColor() {
         return shadowBgColor;
     }
@@ -76,6 +70,33 @@ public class XPopup {
         if (duration >= 0) {
             animationDuration = duration;
         }
+    }
+
+    /**
+     * 在长按弹出弹窗后，能保证下层View不能滑动
+     * @param v
+     */
+    public static PointF longClickPoint = null;
+    public static void fixLongClick(View v){
+        v.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction()==MotionEvent.ACTION_DOWN){
+                    longClickPoint = new PointF(event.getRawX(), event.getRawY());
+                }
+                if("xpopup".equals(v.getTag()) && event.getAction()==MotionEvent.ACTION_MOVE){
+                    //长按发送，阻断父View拦截
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
+                }
+                if(event.getAction()==MotionEvent.ACTION_UP){
+                    //长按结束，恢复阻断
+                    v.getParent().requestDisallowInterceptTouchEvent(false);
+                    v.setTag(null);
+                }
+                return false;
+            }
+        });
+        v.setTag("xpopup");
     }
 
     public static int getAnimationDuration() {
@@ -172,8 +193,9 @@ public class XPopup {
             this.popupInfo.watchView.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    if (popupInfo.touchPoint == null || event.getAction() == MotionEvent.ACTION_DOWN)
+                    if (event.getAction() == MotionEvent.ACTION_DOWN){
                         popupInfo.touchPoint = new PointF(event.getRawX(), event.getRawY());
+                    }
                     return false;
                 }
             });
@@ -203,6 +225,28 @@ public class XPopup {
         }
 
         /**
+         * 设置高度，如果重写了弹窗的getPopupHeight，则以重写的为准
+         * 并且受最大高度限制
+         * @param height
+         * @return
+         */
+        public Builder popupHeight(int height) {
+            this.popupInfo.popupHeight = height;
+            return this;
+        }
+
+        /**
+         * 设置宽度，如果重写了弹窗的getPopupWidth，则以重写的为准
+         * 并且受最大宽度限制
+         * @param width
+         * @return
+         */
+        public Builder popupWidth(int width) {
+            this.popupInfo.popupWidth = width;
+            return this;
+        }
+
+        /**
          * 设置最大宽度，如果重写了弹窗的getMaxWidth，则以重写的为准
          *
          * @param maxWidth
@@ -223,6 +267,7 @@ public class XPopup {
             this.popupInfo.maxHeight = maxHeight;
             return this;
         }
+
 
         /**
          * 是否自动打开输入法，当弹窗包含输入框时很有用，默认为false
@@ -259,8 +304,7 @@ public class XPopup {
         }
 
         /**
-         * 设置是否给StatusBar添加阴影，目前对Drawer弹窗生效。如果你的Drawer的背景是白色，建议设置为true，因为状态栏文字的颜色也往往
-         * 是白色，会导致状态栏文字看不清；如果Drawer的背景色不是白色，则忽略即可
+         * 设置是否给StatusBar添加阴影，目前对Drawer弹窗和全屏弹窗生效生效。
          *
          * @param hasStatusBarShadow
          * @return
@@ -271,7 +315,8 @@ public class XPopup {
         }
 
         /**
-         * 设置是否显示状态栏，默认是显示的
+         * 设置是否显示状态栏，默认是显示的。如果你的APP主动隐藏状态栏，你可能需要设置为false，不然看起来
+         * 会有点不和谐
          *
          * @param hasStatusBar
          * @return
@@ -282,7 +327,8 @@ public class XPopup {
         }
 
         /**
-         * 设置是否显示导航栏，默认是显示的
+         * 设置是否显示导航栏，默认是显示的。如果你的APP主动隐藏了导航栏，你需要设置为false，不然看起来
+         * 会有点不和谐
          *
          * @param hasNavigationBar
          * @return
@@ -293,7 +339,7 @@ public class XPopup {
         }
 
         /**
-         * 设置导航栏的颜色，如果你想自定义弹窗的导航栏颜色就设置这个
+         * 设置导航栏的颜色，如果你想自定义弹窗的导航栏颜色就设置这个。默认情况下不需要
          *
          * @param navigationBarColor
          * @return
@@ -337,7 +383,7 @@ public class XPopup {
         }
 
         /**
-         * 是否水平居中，默认情况下Attach弹窗依靠着目标的左边或者右边，如果isCenterHorizontal为true，则与目标水平居中对齐
+         * 是否与目标水平居中，比如：默认情况下Attach弹窗依靠着目标的左边或者右边，如果isCenterHorizontal为true，则与目标水平居中对齐
          *
          * @param isCenterHorizontal
          * @return
@@ -370,7 +416,7 @@ public class XPopup {
         }
 
         /**
-         * 是否让使用暗色主题，默认是false。
+         * 是否使用暗色主题，默认是false。对所有内置弹窗生效。
          *
          * @param isDarkTheme
          * @return
@@ -381,7 +427,8 @@ public class XPopup {
         }
 
         /**
-         * 是否点击弹窗背景时将点击事件透传到Activity下，默认是不透传。由于容易引发其他问题，目前只对PartShadow弹窗有效。
+         * 是否点击弹窗背景时将点击事件透传到Activity下，默认是false。目前对Center弹窗，Attach弹窗，
+         * Position弹窗，PartShadow弹窗生效；对Drawer弹窗，FullScreen弹窗，Bottom弹窗不生效（未开放功能）
          *
          * @param isClickThrough
          * @return
@@ -393,7 +440,7 @@ public class XPopup {
 
         /**
          * 是否允许应用在后台的时候也能弹出弹窗，默认是false。注意如果开启这个开关，需要申请悬浮窗权限才能生效。
-         *
+         * 直接使用 XPopup.requestOverlayPermission()即可申请
          * @param enableShowWhenAppBackground
          * @return
          */
@@ -422,6 +469,32 @@ public class XPopup {
          */
         public Builder isDestroyOnDismiss(boolean isDestroyOnDismiss) {
             this.popupInfo.isDestroyOnDismiss = isDestroyOnDismiss;
+            return this;
+        }
+
+        /**
+         * 设置圆角，对所有内置弹窗有效
+         *
+         * @param borderRadius
+         * @return
+         */
+        public Builder borderRadius(float borderRadius) {
+            this.popupInfo.borderRadius = borderRadius;
+            return this;
+        }
+
+        /**
+         * 是否已屏幕中心进行定位，默认是false，为false时根据Material范式进行定位，主要影响Attach系列弹窗
+         * Material范式下是：
+         *      弹窗优先显示在目标下方，下方距离不够才显示在上方
+         * 已屏幕中心进行定位：
+         *      目标在屏幕上半方弹窗显示在目标下面，目标在屏幕下半方则弹窗显示在目标上面
+         *
+         * @param positionByWindowCenter
+         * @return
+         */
+        public Builder positionByWindowCenter(boolean positionByWindowCenter) {
+            this.popupInfo.positionByWindowCenter = positionByWindowCenter;
             return this;
         }
 
@@ -687,7 +760,7 @@ public class XPopup {
          */
         public ImageViewerPopupView asImageViewer(ImageView srcView, int currentPosition, List<Object> urls,
                                                   OnSrcViewUpdateListener srcViewUpdateListener, XPopupImageLoader imageLoader) {
-            return asImageViewer(srcView, currentPosition, urls, false, false, -1, -1, -1, true, srcViewUpdateListener, imageLoader);
+            return asImageViewer(srcView, currentPosition, urls, false, true, -1, -1, -1, true, srcViewUpdateListener, imageLoader);
         }
 
         /**

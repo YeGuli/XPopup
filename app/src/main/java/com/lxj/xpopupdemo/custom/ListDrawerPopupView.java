@@ -48,8 +48,10 @@ public class ListDrawerPopupView extends DrawerPopupView {
         findViewById(R.id.btn).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                data.remove(0);
-                commonAdapter.notifyDataSetChanged();
+//                if(data.size()==0)return;
+//                data.remove(0);
+//                commonAdapter.notifyDataSetChanged();
+                dismiss();
             }
         });
 

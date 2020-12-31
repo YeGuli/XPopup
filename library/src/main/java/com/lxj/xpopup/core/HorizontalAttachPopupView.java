@@ -3,6 +3,8 @@ package com.lxj.xpopup.core;
 import android.content.Context;
 import android.graphics.Rect;
 import androidx.annotation.NonNull;
+
+import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.animator.PopupAnimator;
 import com.lxj.xpopup.animator.ScrollScaleAnimator;
 import com.lxj.xpopup.enums.PopupAnimation;
@@ -30,12 +32,13 @@ public class HorizontalAttachPopupView extends AttachPopupView {
      * 执行附着逻辑
      */
     public void doAttach() {
-        final boolean isRTL = XPopupUtils.isLayoutRtl(this);
+        final boolean isRTL = XPopupUtils.isLayoutRtl(getContext());
         float translationX = 0, translationY = 0;
         int w = getPopupContentView().getMeasuredWidth();
         int h = getPopupContentView().getMeasuredHeight();
         //0. 判断是依附于某个点还是某个View
         if (popupInfo.touchPoint != null) {
+            if(XPopup.longClickPoint!=null) popupInfo.touchPoint = XPopup.longClickPoint;
             // 依附于指定点
             isShowLeft = popupInfo.touchPoint.x > XPopupUtils.getWindowWidth(getContext()) / 2;
 
@@ -68,6 +71,7 @@ public class HorizontalAttachPopupView extends AttachPopupView {
         }
         getPopupContentView().setTranslationX(translationX);
         getPopupContentView().setTranslationY(translationY);
+        initAndStartAnimation();
     }
 
     private boolean isShowLeftToTarget() {

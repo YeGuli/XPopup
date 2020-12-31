@@ -32,13 +32,14 @@ public class VerticalRecyclerView extends RecyclerView {
     }
 
     public void setupDivider(Boolean isDark){
-        DividerItemDecoration decoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+        SmartDivider decoration = new SmartDivider(getContext(), SmartDivider.VERTICAL);
         GradientDrawable drawable = new GradientDrawable();
         drawable.setShape(GradientDrawable.RECTANGLE);
         drawable.setColor(getResources().getColor(isDark ? R.color._xpopup_list_dark_divider : R.color._xpopup_list_divider));
-        drawable.setSize(10, XPopupUtils.dp2px(getContext(), .4f));
+        drawable.setSize(10, XPopupUtils.dp2px(getContext(), .5f));
         decoration.setDrawable(drawable);
         addItemDecoration(decoration);
     }
+
 
 }
